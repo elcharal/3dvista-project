@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="popup-title">Detalles del Departamento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* Basic styling for the popup content */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            /* CHANGE THIS LINE for body background */
-            background-color: transparent !important; /* Forces transparent background for the page */
+            background-color: transparent !important;
             color: #333;
             display: flex;
             justify-content: center;
@@ -20,8 +20,7 @@
         }
         .container {
             padding: 25px;
-            /* CHANGE THIS LINE for container background */
-            background-color: rgba(255, 255, 255, 0.85); /* Slightly transparent white (85% opaque) */
+            background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent white */
             border-radius: 10px;
             box-shadow: 0 6px 15px rgba(0,0,0,0.1);
             max-width: 380px;
@@ -62,7 +61,16 @@
             color: #555;
             flex-shrink: 0;
             margin-right: 15px;
+            display: flex; /* Allows icon and text to align properly */
+            align-items: center; /* Vertically align icon and text */
         }
+        /* NEW: Styling for Font Awesome icons within strong tags */
+        strong i {
+            margin-right: 8px; /* Space between icon and text */
+            color: #7f8c8d; /* A subtle color for the icons */
+            font-size: 0.9em; /* Slightly smaller icon size */
+        }
+
         span {
             font-weight: 500;
             color: #000;
@@ -97,28 +105,28 @@
 
     <div class="container">
         <h3 id="apartment-heading">Detalles del Departamento</h3>
-
+        
         <ul>
             <li>
-                <strong>Estado:</strong> <span id="apartment-status">Cargando...</span>
+                <strong><i class="fa-solid fa-circle-info"></i> Estado:</strong> <span id="apartment-status">Cargando...</span>
             </li>
             <li>
-                <strong>Precio:</strong> <span id="apartment-price">Cargando...</span>
+                <strong><i class="fa-solid fa-dollar-sign"></i> Precio:</strong> <span id="apartment-price">Cargando...</span>
             </li>
             <li id="area-interior-item">
-                <strong>Área interior:</strong> <span id="apartment-area-interior">Cargando...</span>
+                <strong><i class="fa-solid fa-expand"></i> Área interior:</strong> <span id="apartment-area-interior">Cargando...</span>
             </li>
             <li id="area-exterior-item" style="display: none;">
-                <strong>Área exterior:</strong> <span id="apartment-area-exterior">Cargando...</span>
+                <strong><i class="fa-solid fa-vector-square"></i> Área exterior:</strong> <span id="apartment-area-exterior">Cargando...</span>
             </li>
             <li id="area-total-item">
-                <strong>Área total:</strong> <span id="apartment-area-total">Cargando...</span>
+                <strong><i class="fa-solid fa-ruler-combined"></i> Área total:</strong> <span id="apartment-area-total">Cargando...</span>
             </li>
             <li id="num-bedrooms-item">
-                <strong>Número de recámaras:</strong> <span id="apartment-num-bedrooms">Cargando...</span>
+                <strong><i class="fa-solid fa-bed"></i> Número de recámaras:</strong> <span id="apartment-num-bedrooms">Cargando...</span>
             </li>
             <li id="num-bathrooms-item">
-                <strong>Número de baños:</strong> <span id="apartment-num-bathrooms">Cargando...</span>
+                <strong><i class="fa-solid fa-bath"></i> Número de baños:</strong> <span id="apartment-num-bathrooms">Cargando...</span>
             </li>
         </ul>
 
@@ -158,14 +166,11 @@
             const apartment = allApartments.find(apt => apt.apartment_id === apartmentIdToFetch);
 
             if (apartment) {
-                // Extract apartment number from ID (e.g., "APT_101" -> "101")
                 const apartmentNumber = apartment.apartment_id.split('_').pop();
 
-                // Update the title of the popup and the main heading
                 document.getElementById('popup-title').textContent = `Departamento ${apartmentNumber}`;
                 document.getElementById('apartment-heading').textContent = `Departamento ${apartmentNumber}`;
 
-                // Get values from apartment object
                 const status = apartment.status;
                 const price = apartment.price;
                 const areaInterior = apartment.area_interior;
@@ -174,11 +179,10 @@
                 const numBedrooms = apartment.num_bedrooms;
                 const numBathrooms = apartment.num_bathrooms;
 
-                // Update Status
                 const statusElement = document.getElementById('apartment-status');
                 if (statusElement) {
                     statusElement.textContent = status;
-                    statusElement.className = 'status-tag'; // Reset classes
+                    statusElement.className = 'status-tag';
                     if (status === 'Sold') {
                         statusElement.classList.add('status-sold');
                     } else if (status === 'Available') {
@@ -190,7 +194,6 @@
                     }
                 }
 
-                // Update Price (formatted to MXN)
                 const priceElement = document.getElementById('apartment-price');
                 if (priceElement) {
                     const numericPrice = parseFloat(price);
@@ -202,13 +205,11 @@
                     }
                 }
 
-                // Update Area Interior
                 const areaInteriorElement = document.getElementById('apartment-area-interior');
                 if (areaInteriorElement) {
                     areaInteriorElement.textContent = `${areaInterior} m²`;
                 }
 
-                // Update Area Exterior (conditional display)
                 const areaExteriorItem = document.getElementById('area-exterior-item');
                 const areaExteriorElement = document.getElementById('apartment-area-exterior');
                 if (areaExterior && String(areaExterior).trim() !== '') {
@@ -218,19 +219,16 @@
                     areaExteriorItem.style.display = 'none';
                 }
 
-                // Update Area Total
                 const areaTotalElement = document.getElementById('apartment-area-total');
                 if (areaTotalElement) {
                     areaTotalElement.textContent = `${areaTotal} m²`;
                 }
 
-                // Update Number of Bedrooms
                 const numBedroomsElement = document.getElementById('apartment-num-bedrooms');
                 if (numBedroomsElement) {
                     numBedroomsElement.textContent = numBedrooms;
                 }
 
-                // Update Number of Bathrooms
                 const numBathroomsElement = document.getElementById('apartment-num-bathrooms');
                 if (numBathroomsElement) {
                     numBathroomsElement.textContent = numBathrooms;
@@ -251,7 +249,6 @@
         }
     }
 
-    // --- Trigger the update when the page loads ---
     document.addEventListener('DOMContentLoaded', updateApartmentData);
     </script>
 </body>
