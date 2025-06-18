@@ -1,71 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="es"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="popup-title">Apartment Details</title>
+    <title id="popup-title">Detalles del Departamento</title>
     <style>
         /* Basic styling for the popup content */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            background-color: #f0f2f5; /* Lighter background */
             color: #333;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Ensures content fills the iframe */
+            min-height: 100vh;
         }
         .container {
-            padding: 20px;
+            padding: 25px;
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            max-width: 400px; /* Adjust as needed */
+            border-radius: 10px; /* More rounded corners */
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1); /* Stronger shadow */
+            max-width: 380px; /* Slightly wider */
             width: 90%;
-            box-sizing: border-box; /* Include padding in width */
+            box-sizing: border-box;
+            text-align: left; /* Align text left */
         }
         h3 {
-            color: #333;
+            color: #2c3e50; /* Darker header color */
             margin-top: 0;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
             padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0; /* Thicker border */
+            text-align: center; /* Center header */
+            font-size: 1.8em; /* Larger header */
+            font-weight: 600;
         }
-        p {
-            font-size: 1.1em;
-            margin-bottom: 8px;
+        ul {
+            list-style: none; /* Remove bullet points */
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            font-size: 1.05em; /* Slightly smaller list items */
+            margin-bottom: 10px;
+            display: flex; /* For alignment of label and value */
+            justify-content: space-between; /* Space out label and value */
+            align-items: baseline;
+            border-bottom: 1px dashed #eee; /* Light dashed separator */
+            padding-bottom: 8px;
+        }
+        li:last-child {
+            border-bottom: none; /* No border for the last item */
+            margin-bottom: 0;
+            padding-bottom: 0;
         }
         strong {
             color: #555;
+            flex-shrink: 0; /* Prevent label from shrinking */
+            margin-right: 15px; /* Space between label and value */
         }
         span {
-            font-weight: bold;
+            font-weight: 500; /* Less bold for values */
+            color: #000; /* Make value text black */
+            text-align: right;
+            flex-grow: 1; /* Allow value to take up remaining space */
         }
-        .status-sold { color: red; }
-        .status-available { color: green; }
-        .status-reserved { color: orange; } /* Assuming 'Reserved' is a possible status */
-        #tour-error-message {
-            color: red;
+        .status-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 5px;
             font-size: 0.9em;
-            margin-top: 15px;
+            font-weight: bold;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        .status-sold { background-color: #e74c3c; } /* Red */
+        .status-available { background-color: #27ae60; } /* Green */
+        .status-reserved { background-color: #f39c12; } /* Orange */
+        .status-unknown { background-color: #7f8c8d; } /* Grey for unhandled statuses */
+
+        #tour-error-message {
+            color: #c0392b; /* Darker red for errors */
+            font-size: 0.9em;
+            margin-top: 20px;
+            text-align: center;
+            border-top: 1px solid #fbdad8;
+            padding-top: 10px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h3 id="apartment-heading">Apartment Details</h3>
-        <p>
-            <strong>Status:</strong> <span id="apartment-status">Loading...</span>
-        </p>
-        <p>
-            <strong>Price:</strong> <span id="apartment-price">Loading...</span>
-        </p>
-        <p>
-            <strong>Notes:</strong> <span id="apartment-notes">Loading...</span>
-        </p>
+        <h3 id="apartment-heading">Detalles del Departamento</h3> <ul>
+            <li>
+                <strong>Estado:</strong> <span id="apartment-status">Cargando...</span>
+            </li>
+            <li>
+                <strong>Precio:</strong> <span id="apartment-price">Cargando...</span>
+            </li>
+            <li id="area-interior-item">
+                <strong>Área interior:</strong> <span id="apartment-area-interior">Cargando...</span>
+            </li>
+            <li id="area-exterior-item" style="display: none;"> <strong>Área exterior:</strong> <span id="apartment-area-exterior">Cargando...</span>
+            </li>
+            <li id="area-total-item">
+                <strong>Área total:</strong> <span id="apartment-area-total">Cargando...</span>
+            </li>
+            <li id="num-bedrooms-item">
+                <strong>Número de recámaras:</strong> <span id="apartment-num-bedrooms">Cargando...</span>
+            </li>
+            <li id="num-bathrooms-item">
+                <strong>Número de baños:</strong> <span id="apartment-num-bathrooms">Cargando...</span>
+            </li>
+        </ul>
+
         <div id="tour-error-message"></div>
     </div>
 
@@ -85,8 +135,8 @@
 
         if (!apartmentIdToFetch) {
             console.error("No 'id' parameter found in the URL. Cannot fetch apartment data.");
-            document.getElementById('tour-error-message').textContent = "Error: Apartment ID not specified in URL. Check the 3D Vista popup URL.";
-            return; // Stop execution if no ID is provided
+            document.getElementById('tour-error-message').textContent = "Error: ID de departamento no especificado en la URL.";
+            return;
         }
 
         console.log(`Fetching data for apartment ID: ${apartmentIdToFetch}...`);
@@ -102,69 +152,98 @@
             const apartment = allApartments.find(apt => apt.apartment_id === apartmentIdToFetch);
 
             if (apartment) {
-                // Corrected line using template literals:
-                document.getElementById('popup-title').textContent = `Apartment ${apartment.apartment_id} Details`;
-                document.getElementById('apartment-heading').textContent = `Apartment ${apartment.apartment_id} Details (${apartment.project_name})`;
+                // Extract apartment number from ID (e.g., "APT_101" -> "101")
+                const apartmentNumber = apartment.apartment_id.split('_').pop();
 
+                // Update the title of the popup and the main heading
+                document.getElementById('popup-title').textContent = `Departamento ${apartmentNumber}`;
+                document.getElementById('apartment-heading').textContent = `Departamento ${apartmentNumber}`;
+
+                // Get values from apartment object
                 const status = apartment.status;
                 const price = apartment.price;
-                const notes = apartment.notes;
+                const areaInterior = apartment.area_interior;
+                const areaExterior = apartment.area_exterior; // This might be empty
+                const areaTotal = apartment.area_total;
+                const numBedrooms = apartment.num_bedrooms;
+                const numBathrooms = apartment.num_bathrooms;
 
                 // Update Status
                 const statusElement = document.getElementById('apartment-status');
                 if (statusElement) {
                     statusElement.textContent = status;
-                    // Remove previous status classes and add new one for styling
-                    statusElement.classList.remove('status-sold', 'status-available', 'status-reserved');
+                    // Remove existing status classes and add the correct one
+                    statusElement.className = 'status-tag'; // Reset classes
                     if (status === 'Sold') {
                         statusElement.classList.add('status-sold');
                     } else if (status === 'Available') {
                         statusElement.classList.add('status-available');
-                    } else if (status === 'Reserved') { // Assuming 'Reserved' is a possible status
+                    } else if (status === 'Reserved') {
                         statusElement.classList.add('status-reserved');
                     } else {
-                        // Default color if status is unknown/unhandled by specific classes
-                        statusElement.style.color = '#333';
+                        statusElement.classList.add('status-unknown'); // For any other status
                     }
-                } else {
-                    console.warn(`Status element 'apartment-status' not found.`);
                 }
 
-                // Update Price
+                // Update Price (formatted to USD, adjust currency if needed)
                 const priceElement = document.getElementById('apartment-price');
                 if (priceElement) {
-                    // Ensure price is a number before formatting, and handle potential non-numeric values
                     const numericPrice = parseFloat(price);
                     if (!isNaN(numericPrice)) {
-                        const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(numericPrice);
+                        const formattedPrice = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(numericPrice); // Changed to MXN
                         priceElement.textContent = formattedPrice;
                     } else {
-                         priceElement.textContent = 'Price: N/A'; // Display if price is not a valid number
+                         priceElement.textContent = 'N/A';
                     }
-                } else {
-                    console.warn(`Price element 'apartment-price' not found.`);
                 }
 
-                // Update Notes
-                const notesElement = document.getElementById('apartment-notes');
-                if (notesElement) {
-                    notesElement.textContent = notes;
+                // Update Area Interior
+                const areaInteriorElement = document.getElementById('apartment-area-interior');
+                if (areaInteriorElement) {
+                    areaInteriorElement.textContent = `${areaInterior} m²`;
+                }
+
+                // Update Area Exterior (conditional display)
+                const areaExteriorItem = document.getElementById('area-exterior-item');
+                const areaExteriorElement = document.getElementById('apartment-area-exterior');
+                if (areaExterior && String(areaExterior).trim() !== '') { // Check if data exists and is not just whitespace
+                    areaExteriorItem.style.display = 'flex'; // Show the list item
+                    areaExteriorElement.textContent = `${areaExterior} m²`;
                 } else {
-                    console.warn(`Notes element 'apartment-notes' not found.`);
+                    areaExteriorItem.style.display = 'none'; // Hide the list item
+                }
+
+                // Update Area Total
+                const areaTotalElement = document.getElementById('apartment-area-total');
+                if (areaTotalElement) {
+                    areaTotalElement.textContent = `${areaTotal} m²`;
+                }
+
+                // Update Number of Bedrooms
+                const numBedroomsElement = document.getElementById('apartment-num-bedrooms');
+                if (numBedroomsElement) {
+                    numBedroomsElement.textContent = numBedrooms;
+                }
+
+                // Update Number of Bathrooms
+                const numBathroomsElement = document.getElementById('apartment-num-bathrooms');
+                if (numBathroomsElement) {
+                    numBathroomsElement.textContent = numBathrooms;
                 }
 
             } else {
                 console.warn(`Apartment with ID '${apartmentIdToFetch}' not found in the data.`);
-                document.getElementById('apartment-heading').textContent = "Apartment Not Found";
-                document.getElementById('apartment-status').textContent = 'N/A';
-                document.getElementById('apartment-price').textContent = 'N/A';
-                document.getElementById('apartment-notes').textContent = '';
-                document.getElementById('tour-error-message').textContent = `Error: Apartment ID '${apartmentIdToFetch}' not found in your Google Sheet data.`;
+                document.getElementById('apartment-heading').textContent = "Departamento No Encontrado";
+                document.getElementById('tour-error-message').textContent = `Error: ID '${apartmentIdToFetch}' no encontrado en los datos. Revise su hoja de Google.`;
+                // Hide all detail items if apartment not found
+                document.querySelectorAll('.container ul li').forEach(li => li.style.display = 'none');
             }
 
         } catch (error) {
             console.error('Error updating apartment data:', error);
-            document.getElementById('tour-error-message').textContent = 'Failed to load apartment data. Please check your internet connection or API URL.';
+            document.getElementById('tour-error-message').textContent = 'Fallo al cargar los datos del departamento. Revise su conexión a internet o el URL del API.';
+            document.getElementById('apartment-heading').textContent = "Error de Carga";
+            document.querySelectorAll('.container ul li').forEach(li => li.style.display = 'none');
         }
     }
 
