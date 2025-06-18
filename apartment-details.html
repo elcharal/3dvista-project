@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html lang="es"> <head>
+<html lang="es">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="popup-title">Detalles del Departamento</title>
     <style>
         /* Basic styling for the popup content */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f2f5; /* Lighter background */
+            /* CHANGE THIS LINE for body background */
+            background-color: transparent !important; /* Forces transparent background for the page */
             color: #333;
             display: flex;
             justify-content: center;
@@ -18,53 +20,54 @@
         }
         .container {
             padding: 25px;
-            background-color: #fff;
-            border-radius: 10px; /* More rounded corners */
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1); /* Stronger shadow */
-            max-width: 380px; /* Slightly wider */
+            /* CHANGE THIS LINE for container background */
+            background-color: rgba(255, 255, 255, 0.85); /* Slightly transparent white (85% opaque) */
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            max-width: 380px;
             width: 90%;
             box-sizing: border-box;
-            text-align: left; /* Align text left */
+            text-align: left;
         }
         h3 {
-            color: #2c3e50; /* Darker header color */
+            color: #2c3e50;
             margin-top: 0;
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0; /* Thicker border */
-            text-align: center; /* Center header */
-            font-size: 1.8em; /* Larger header */
+            border-bottom: 2px solid #e0e0e0;
+            text-align: center;
+            font-size: 1.8em;
             font-weight: 600;
         }
         ul {
-            list-style: none; /* Remove bullet points */
+            list-style: none;
             padding: 0;
             margin: 0;
         }
         li {
-            font-size: 1.05em; /* Slightly smaller list items */
+            font-size: 1.05em;
             margin-bottom: 10px;
-            display: flex; /* For alignment of label and value */
-            justify-content: space-between; /* Space out label and value */
+            display: flex;
+            justify-content: space-between;
             align-items: baseline;
-            border-bottom: 1px dashed #eee; /* Light dashed separator */
+            border-bottom: 1px dashed #eee;
             padding-bottom: 8px;
         }
         li:last-child {
-            border-bottom: none; /* No border for the last item */
+            border-bottom: none;
             margin-bottom: 0;
             padding-bottom: 0;
         }
         strong {
             color: #555;
-            flex-shrink: 0; /* Prevent label from shrinking */
-            margin-right: 15px; /* Space between label and value */
+            flex-shrink: 0;
+            margin-right: 15px;
         }
         span {
-            font-weight: 500; /* Less bold for values */
-            color: #000; /* Make value text black */
+            font-weight: 500;
+            color: #000;
             text-align: right;
-            flex-grow: 1; /* Allow value to take up remaining space */
+            flex-grow: 1;
         }
         .status-tag {
             display: inline-block;
@@ -75,13 +78,13 @@
             color: #fff;
             text-transform: uppercase;
         }
-        .status-sold { background-color: #e74c3c; } /* Red */
-        .status-available { background-color: #27ae60; } /* Green */
-        .status-reserved { background-color: #f39c12; } /* Orange */
-        .status-unknown { background-color: #7f8c8d; } /* Grey for unhandled statuses */
+        .status-sold { background-color: #e74c3c; }
+        .status-available { background-color: #27ae60; }
+        .status-reserved { background-color: #f39c12; }
+        .status-unknown { background-color: #7f8c8d; }
 
         #tour-error-message {
-            color: #c0392b; /* Darker red for errors */
+            color: #c0392b;
             font-size: 0.9em;
             margin-top: 20px;
             text-align: center;
@@ -93,7 +96,9 @@
 <body>
 
     <div class="container">
-        <h3 id="apartment-heading">Detalles del Departamento</h3> <ul>
+        <h3 id="apartment-heading">Detalles del Departamento</h3>
+
+        <ul>
             <li>
                 <strong>Estado:</strong> <span id="apartment-status">Cargando...</span>
             </li>
@@ -103,7 +108,8 @@
             <li id="area-interior-item">
                 <strong>Área interior:</strong> <span id="apartment-area-interior">Cargando...</span>
             </li>
-            <li id="area-exterior-item" style="display: none;"> <strong>Área exterior:</strong> <span id="apartment-area-exterior">Cargando...</span>
+            <li id="area-exterior-item" style="display: none;">
+                <strong>Área exterior:</strong> <span id="apartment-area-exterior">Cargando...</span>
             </li>
             <li id="area-total-item">
                 <strong>Área total:</strong> <span id="apartment-area-total">Cargando...</span>
@@ -135,7 +141,7 @@
 
         if (!apartmentIdToFetch) {
             console.error("No 'id' parameter found in the URL. Cannot fetch apartment data.");
-            document.getElementById('tour-error-message').textContent = "Error: ID de departamento no especificado en la URL.";
+            document.getElementById('tour-error-message').textContent = "Error: ID de departamento no especificado en la URL. Revise el URL del popup en 3D Vista.";
             return;
         }
 
@@ -163,7 +169,7 @@
                 const status = apartment.status;
                 const price = apartment.price;
                 const areaInterior = apartment.area_interior;
-                const areaExterior = apartment.area_exterior; // This might be empty
+                const areaExterior = apartment.area_exterior;
                 const areaTotal = apartment.area_total;
                 const numBedrooms = apartment.num_bedrooms;
                 const numBathrooms = apartment.num_bathrooms;
@@ -172,7 +178,6 @@
                 const statusElement = document.getElementById('apartment-status');
                 if (statusElement) {
                     statusElement.textContent = status;
-                    // Remove existing status classes and add the correct one
                     statusElement.className = 'status-tag'; // Reset classes
                     if (status === 'Sold') {
                         statusElement.classList.add('status-sold');
@@ -181,16 +186,16 @@
                     } else if (status === 'Reserved') {
                         statusElement.classList.add('status-reserved');
                     } else {
-                        statusElement.classList.add('status-unknown'); // For any other status
+                        statusElement.classList.add('status-unknown');
                     }
                 }
 
-                // Update Price (formatted to USD, adjust currency if needed)
+                // Update Price (formatted to MXN)
                 const priceElement = document.getElementById('apartment-price');
                 if (priceElement) {
                     const numericPrice = parseFloat(price);
                     if (!isNaN(numericPrice)) {
-                        const formattedPrice = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(numericPrice); // Changed to MXN
+                        const formattedPrice = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(numericPrice);
                         priceElement.textContent = formattedPrice;
                     } else {
                          priceElement.textContent = 'N/A';
@@ -206,11 +211,11 @@
                 // Update Area Exterior (conditional display)
                 const areaExteriorItem = document.getElementById('area-exterior-item');
                 const areaExteriorElement = document.getElementById('apartment-area-exterior');
-                if (areaExterior && String(areaExterior).trim() !== '') { // Check if data exists and is not just whitespace
-                    areaExteriorItem.style.display = 'flex'; // Show the list item
+                if (areaExterior && String(areaExterior).trim() !== '') {
+                    areaExteriorItem.style.display = 'flex';
                     areaExteriorElement.textContent = `${areaExterior} m²`;
                 } else {
-                    areaExteriorItem.style.display = 'none'; // Hide the list item
+                    areaExteriorItem.style.display = 'none';
                 }
 
                 // Update Area Total
@@ -235,7 +240,6 @@
                 console.warn(`Apartment with ID '${apartmentIdToFetch}' not found in the data.`);
                 document.getElementById('apartment-heading').textContent = "Departamento No Encontrado";
                 document.getElementById('tour-error-message').textContent = `Error: ID '${apartmentIdToFetch}' no encontrado en los datos. Revise su hoja de Google.`;
-                // Hide all detail items if apartment not found
                 document.querySelectorAll('.container ul li').forEach(li => li.style.display = 'none');
             }
 
