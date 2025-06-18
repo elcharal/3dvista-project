@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="popup-title">Apartment Details</title>
     <style>
+        /* Basic styling for the popup content */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -23,7 +24,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             max-width: 400px; /* Adjust as needed */
             width: 90%;
-            box-sizing: border-box;
+            box-sizing: border-box; /* Include padding in width */
         }
         h3 {
             color: #333;
@@ -44,7 +45,7 @@
         }
         .status-sold { color: red; }
         .status-available { color: green; }
-        .status-reserved { color: orange; }
+        .status-reserved { color: orange; } /* Assuming 'Reserved' is a possible status */
         #tour-error-message {
             color: red;
             font-size: 0.9em;
@@ -84,7 +85,7 @@
 
         if (!apartmentIdToFetch) {
             console.error("No 'id' parameter found in the URL. Cannot fetch apartment data.");
-            document.getElementById('tour-error-message').textContent = "Error: Apartment ID not specified in URL.";
+            document.getElementById('tour-error-message').textContent = "Error: Apartment ID not specified in URL. Check the 3D Vista popup URL.";
             return; // Stop execution if no ID is provided
         }
 
@@ -101,11 +102,9 @@
             const apartment = allApartments.find(apt => apt.apartment_id === apartmentIdToFetch);
 
             if (apartment) {
-                // Update the title of the popup (visible in browser tab, or 3D Vista's internal title)
+                // Corrected line using template literals:
                 document.getElementById('popup-title').textContent = `Apartment ${apartment.apartment_id} Details`;
-                // Update the heading inside the popup
-                document.getElementById('apartment-heading').textContent = `Apartment <span class="math-inline">\{apartment\.apartment\_id\} Details \(</span>{apartment.project_name})`;
-
+                document.getElementById('apartment-heading').textContent = `Apartment ${apartment.apartment_id} Details (${apartment.project_name})`;
 
                 const status = apartment.status;
                 const price = apartment.price;
@@ -115,45 +114,52 @@
                 const statusElement = document.getElementById('apartment-status');
                 if (statusElement) {
                     statusElement.textContent = status;
-                    statusElement.classList.remove('status-sold', 'status-available', 'status-reserved'); // Clean up old classes
+                    // Remove previous status classes and add new one for styling
+                    statusElement.classList.remove('status-sold', 'status-available', 'status-reserved');
                     if (status === 'Sold') {
                         statusElement.classList.add('status-sold');
                     } else if (status === 'Available') {
                         statusElement.classList.add('status-available');
-                    } else if (status === 'Reserved') { // Assuming 'Reserved' as a third status
+                    } else if (status === 'Reserved') { // Assuming 'Reserved' is a possible status
                         statusElement.classList.add('status-reserved');
                     } else {
-                         // Default color if status is unknown/unhandled
+                        // Default color if status is unknown/unhandled by specific classes
                         statusElement.style.color = '#333';
                     }
+                } else {
+                    console.warn(`Status element 'apartment-status' not found.`);
                 }
 
                 // Update Price
                 const priceElement = document.getElementById('apartment-price');
                 if (priceElement) {
-                    // Ensure price is a number before formatting
+                    // Ensure price is a number before formatting, and handle potential non-numeric values
                     const numericPrice = parseFloat(price);
                     if (!isNaN(numericPrice)) {
                         const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(numericPrice);
                         priceElement.textContent = formattedPrice;
                     } else {
-                         priceElement.textContent = 'Price: N/A'; // Or handle as an error
+                         priceElement.textContent = 'Price: N/A'; // Display if price is not a valid number
                     }
+                } else {
+                    console.warn(`Price element 'apartment-price' not found.`);
                 }
 
                 // Update Notes
                 const notesElement = document.getElementById('apartment-notes');
                 if (notesElement) {
                     notesElement.textContent = notes;
+                } else {
+                    console.warn(`Notes element 'apartment-notes' not found.`);
                 }
 
             } else {
                 console.warn(`Apartment with ID '${apartmentIdToFetch}' not found in the data.`);
                 document.getElementById('apartment-heading').textContent = "Apartment Not Found";
-                document.getElementById('apartment-status').textContent = '';
-                document.getElementById('apartment-price').textContent = '';
+                document.getElementById('apartment-status').textContent = 'N/A';
+                document.getElementById('apartment-price').textContent = 'N/A';
                 document.getElementById('apartment-notes').textContent = '';
-                document.getElementById('tour-error-message').textContent = `Error: Apartment ID '${apartmentIdToFetch}' not found in data.`;
+                document.getElementById('tour-error-message').textContent = `Error: Apartment ID '${apartmentIdToFetch}' not found in your Google Sheet data.`;
             }
 
         } catch (error) {
