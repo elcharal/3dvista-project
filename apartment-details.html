@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="popup-title">Apartment Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Ensures content fills the iframe */
+        }
+        .container {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            max-width: 400px; /* Adjust as needed */
+            width: 90%;
+            box-sizing: border-box;
+        }
+        h3 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        p {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        strong {
+            color: #555;
+        }
+        span {
+            font-weight: bold;
+        }
+        .status-sold { color: red; }
+        .status-available { color: green; }
+        .status-reserved { color: orange; }
+        #tour-error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3 id="apartment-heading">Apartment Details</h3>
+        <p>
+            <strong>Status:</strong> <span id="apartment-status">Loading...</span>
+        </p>
+        <p>
+            <strong>Price:</strong> <span id="apartment-price">Loading...</span>
+        </p>
+        <p>
+            <strong>Notes:</strong> <span id="apartment-notes">Loading...</span>
+        </p>
+        <div id="tour-error-message"></div>
+    </div>
+
+    <script>
+    // --- Configuration ---
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwNsaqHEHmENxLPHipOMMjw5xheqz2wxUyWIz48hbSu7Vck6pHGxmZUgNIP3erIYYrg/exec'; // <--- IMPORTANT: Paste your UNIQUE Google Apps Script Web App URL here!
+
+    // Function to get a query parameter from the URL
+    function getQueryParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    // --- Function to Fetch and Update Data for a Single Apartment ---
+    async function updateApartmentData() {
+        const apartmentIdToFetch = getQueryParam('id'); // Get the apartment ID from the URL parameter
+
+        if (!apartmentIdToFetch) {
+            console.error("No 'id' parameter found in the URL. Cannot fetch apartment data.");
+            document.getElementById('tour-error-message').textContent = "Error: Apartment ID not specified in URL.";
+            return; // Stop execution if no ID is provided
+        }
+
+        console.log(`Fetching data for apartment ID: ${apartmentIdToFetch}...`);
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const allApartments = await response.json();
+            console.log('All data fetched:', allApartments);
+
+            // Find the specific apartment data by ID
+            const apartment = allApartments.find(apt => apt.apartment_id === apartmentIdToFetch);
+
+            if (apartment) {
+                // Update the title of the popup (visible in browser tab, or 3D Vista's internal title)
+                document.getElementById('popup-title').textContent = `Apartment ${apartment.apartment_id} Details`;
+                // Update the heading inside the popup
+                document.getElementById('apartment-heading').textContent = `Apartment <span class="math-inline">\{apartment\.apartment\_id\} Details \(</span>{apartment.project_name})`;
+
+
+                const status = apartment.status;
+                const price = apartment.price;
+                const notes = apartment.notes;
+
+                // Update Status
+                const statusElement = document.getElementById('apartment-status');
+                if (statusElement) {
+                    statusElement.textContent = status;
+                    statusElement.classList.remove('status-sold', 'status-available', 'status-reserved'); // Clean up old classes
+                    if (status === 'Sold') {
+                        statusElement.classList.add('status-sold');
+                    } else if (status === 'Available') {
+                        statusElement.classList.add('status-available');
+                    } else if (status === 'Reserved') { // Assuming 'Reserved' as a third status
+                        statusElement.classList.add('status-reserved');
+                    } else {
+                         // Default color if status is unknown/unhandled
+                        statusElement.style.color = '#333';
+                    }
+                }
+
+                // Update Price
+                const priceElement = document.getElementById('apartment-price');
+                if (priceElement) {
+                    // Ensure price is a number before formatting
+                    const numericPrice = parseFloat(price);
+                    if (!isNaN(numericPrice)) {
+                        const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(numericPrice);
+                        priceElement.textContent = formattedPrice;
+                    } else {
+                         priceElement.textContent = 'Price: N/A'; // Or handle as an error
+                    }
+                }
+
+                // Update Notes
+                const notesElement = document.getElementById('apartment-notes');
+                if (notesElement) {
+                    notesElement.textContent = notes;
+                }
+
+            } else {
+                console.warn(`Apartment with ID '${apartmentIdToFetch}' not found in the data.`);
+                document.getElementById('apartment-heading').textContent = "Apartment Not Found";
+                document.getElementById('apartment-status').textContent = '';
+                document.getElementById('apartment-price').textContent = '';
+                document.getElementById('apartment-notes').textContent = '';
+                document.getElementById('tour-error-message').textContent = `Error: Apartment ID '${apartmentIdToFetch}' not found in data.`;
+            }
+
+        } catch (error) {
+            console.error('Error updating apartment data:', error);
+            document.getElementById('tour-error-message').textContent = 'Failed to load apartment data. Please check your internet connection or API URL.';
+        }
+    }
+
+    // --- Trigger the update when the page loads ---
+    document.addEventListener('DOMContentLoaded', updateApartmentData);
+    </script>
+</body>
+</html>
